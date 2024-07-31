@@ -1,10 +1,11 @@
 # Copyright 2024 Canonical, Ltd.
 # See LICENSE file for licensing details
 
+# Based on: https://github.com/kubernetes-csi/external-snapshotter/blob/v6.3.3/cmd/csi-snapshotter/Dockerfile
 name: csi-snapshotter
 summary: csi-snapshotter rock
 description: |
-    A rock containing csi-snapshotter.
+    A rock containing the CSI snapshotter.
 license: Apache-2.0
 version: 6.3.3
 
@@ -39,8 +40,14 @@ parts:
     build-snaps:
       - go/1.20/stable
     build-environment:
+      - CGO_ENABLED: 0
       - GOOS: linux
       - GOARCH: $CRAFT_ARCH_BUILD_FOR
+      - VERSION: $CRAFT_PROJECT_VERSION
+      - LDFLAGS: >
+          -X main.version=${VERSION} -extldflags "-static"
+    go-buildtags:
+      - "mod=vendor"
     go-generate:
       - ./cmd/csi-snapshotter
     organize:
