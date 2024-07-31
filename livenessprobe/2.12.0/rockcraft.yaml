@@ -1,0 +1,47 @@
+# Copyright 2024 Canonical, Ltd.
+# See LICENSE file for licensing details
+
+name: livenessprobe
+summary: livenessprobe rock
+description: |
+    A rock containing livenessprobe.
+license: Apache-2.0
+version: 2.12.0
+
+base: bare
+build-base: ubuntu@22.04
+run-user: _daemon_
+
+platforms:
+  amd64:
+  arm64:
+
+environment:
+  APP_VERSION: 2.12.0
+
+# Services to be loaded by the Pebble entrypoint.
+services:
+  livenessprobe:
+    summary: "livenessprobe service"
+    override: replace
+    startup: enabled
+    command: "/livenessprobe"
+    on-success: shutdown
+    on-failure: shutdown
+
+parts:
+  build-livenessprobe:
+    plugin: go
+    source: https://github.com/kubernetes-csi/livenessprobe.git
+    source-type: git
+    source-tag: v${CRAFT_PROJECT_VERSION}
+    source-depth: 1
+    build-snaps:
+      - go/1.21/stable
+    build-environment:
+      - GOOS: linux
+      - GOARCH: $CRAFT_ARCH_BUILD_FOR
+    go-generate:
+      - ./cmd/livenessprobe
+    organize:
+      bin/livenessprobe: ./
