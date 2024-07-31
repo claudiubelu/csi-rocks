@@ -5,10 +5,6 @@
 
 from k8s_test_harness.util import docker_util, env_util
 
-ROCK_EXPECTED_FILES = [
-    "/bin/pebble",
-]
-
 
 def test_csi_node_driver_registrar_rock():
     """Test csi-node-driver-registrar rock."""
@@ -17,5 +13,6 @@ def test_csi_node_driver_registrar_rock():
     )
     image = rock.image
 
-    # check rock filesystem.
-    docker_util.ensure_image_contains_paths(image, ROCK_EXPECTED_FILES)
+    # check binary.
+    process = docker_util.run_in_docker(image, ["/csi-node-driver-registrar", "--help"])
+    assert "Usage of /csi-node-driver-registrar" in process.stderr
