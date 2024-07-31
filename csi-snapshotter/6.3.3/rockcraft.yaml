@@ -1,0 +1,47 @@
+# Copyright 2024 Canonical, Ltd.
+# See LICENSE file for licensing details
+
+name: csi-snapshotter
+summary: csi-snapshotter rock
+description: |
+    A rock containing csi-snapshotter.
+license: Apache-2.0
+version: 6.3.3
+
+base: bare
+build-base: ubuntu@22.04
+run-user: _daemon_
+
+platforms:
+  amd64:
+  arm64:
+
+environment:
+  APP_VERSION: 6.3.3
+
+# Services to be loaded by the Pebble entrypoint.
+services:
+  csi-snapshotter:
+    summary: "csi-snapshotter service"
+    override: replace
+    startup: enabled
+    command: "/csi-snapshotter"
+    on-success: shutdown
+    on-failure: shutdown
+
+parts:
+  build-csi-snapshotter:
+    plugin: go
+    source: https://github.com/kubernetes-csi/external-snapshotter.git
+    source-type: git
+    source-tag: v${CRAFT_PROJECT_VERSION}
+    source-depth: 1
+    build-snaps:
+      - go/1.20/stable
+    build-environment:
+      - GOOS: linux
+      - GOARCH: $CRAFT_ARCH_BUILD_FOR
+    go-generate:
+      - ./cmd/csi-snapshotter
+    organize:
+      bin/csi-snapshotter: ./
