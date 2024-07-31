@@ -1,10 +1,14 @@
 # Copyright 2024 Canonical, Ltd.
 # See LICENSE file for licensing details
 
+# Based on: https://github.com/kubernetes-csi/livenessprobe/blob/v2.12.0/Dockerfile
 name: livenessprobe
 summary: livenessprobe rock
 description: |
     A rock containing livenessprobe.
+
+    The liveness probe is a sidecar container that exposes an HTTP /healthz endpoint,
+    which serves as kubelet's livenessProbe hook to monitor health of a CSI driver.
 license: Apache-2.0
 version: 2.12.0
 
@@ -39,8 +43,14 @@ parts:
     build-snaps:
       - go/1.21/stable
     build-environment:
+      - CGO_ENABLED: 0
       - GOOS: linux
       - GOARCH: $CRAFT_ARCH_BUILD_FOR
+      - VERSION: $CRAFT_PROJECT_VERSION
+      - LDFLAGS: >
+          -X main.version=${VERSION} -extldflags "-static"
+    go-buildtags:
+      - "mod=vendor"
     go-generate:
       - ./cmd/livenessprobe
     organize:

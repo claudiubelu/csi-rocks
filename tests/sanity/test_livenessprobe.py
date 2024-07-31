@@ -5,10 +5,6 @@
 
 from k8s_test_harness.util import docker_util, env_util
 
-ROCK_EXPECTED_FILES = [
-    "/bin/pebble",
-]
-
 
 def test_livenessprobe_rock():
     """Test livenessprobe rock."""
@@ -17,5 +13,6 @@ def test_livenessprobe_rock():
     )
     image = rock.image
 
-    # check rock filesystem.
-    docker_util.ensure_image_contains_paths(image, ROCK_EXPECTED_FILES)
+    # check binary.
+    process = docker_util.run_in_docker(image, ["/livenessprobe", "--help"])
+    assert "Usage of /livenessprobe" in process.stderr
