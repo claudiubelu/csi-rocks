@@ -5,10 +5,6 @@
 
 from k8s_test_harness.util import docker_util, env_util
 
-ROCK_EXPECTED_FILES = [
-    "/bin/pebble",
-]
-
 
 def test_snapshot_controller_rock():
     """Test snapshot-controller rock."""
@@ -17,5 +13,6 @@ def test_snapshot_controller_rock():
     )
     image = rock.image
 
-    # check rock filesystem.
-    docker_util.ensure_image_contains_paths(image, ROCK_EXPECTED_FILES)
+    # check binary.
+    process = docker_util.run_in_docker(image, ["/snapshot-controller", "--help"])
+    assert "Usage of /snapshot-controller" in process.stderr
