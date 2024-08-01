@@ -1,0 +1,47 @@
+# Copyright 2024 Canonical, Ltd.
+# See LICENSE file for licensing details
+
+name: csi-resizer
+summary: csi-resizer rock
+description: |
+    A rock containing csi-resizer.
+license: Apache-2.0
+version: 1.10.1
+
+base: bare
+build-base: ubuntu@22.04
+run-user: _daemon_
+
+platforms:
+  amd64:
+  arm64:
+
+environment:
+  APP_VERSION: 1.10.1
+
+# Services to be loaded by the Pebble entrypoint.
+services:
+  csi-resizer:
+    summary: "csi-resizer service"
+    override: replace
+    startup: enabled
+    command: "/csi-resizer"
+    on-success: shutdown
+    on-failure: shutdown
+
+parts:
+  build-csi-resizer:
+    plugin: go
+    source: https://github.com/kubernetes-csi/external-resizer.git
+    source-type: git
+    source-tag: v${CRAFT_PROJECT_VERSION}
+    source-depth: 1
+    build-snaps:
+      - go/1.21/stable
+    build-environment:
+      - GOOS: linux
+      - GOARCH: $CRAFT_ARCH_BUILD_FOR
+    go-generate:
+      - ./cmd/csi-resizer
+    organize:
+      bin/csi-resizer: ./
