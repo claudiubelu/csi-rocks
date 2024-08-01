@@ -22,7 +22,6 @@ build-base: ubuntu@22.04
 
 platforms:
   amd64:
-  arm64:
 
 environment:
   APP_VERSION: 2.9.2
