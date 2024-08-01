@@ -1,10 +1,16 @@
 # Copyright 2024 Canonical, Ltd.
 # See LICENSE file for licensing details
 
+# Based on: https://github.com/kubernetes-csi/external-resizer/blob/v1.10.1/Dockerfile
 name: csi-resizer
 summary: csi-resizer rock
 description: |
     A rock containing csi-resizer.
+
+    The CSI external-resizer is a sidecar container that watches the Kubernetes API
+    server for PersistentVolumeClaim updates and triggers ControllerExpandVolume
+    operations against a CSI endpoint if user requested more storage on
+    PersistentVolumeClaim object.
 license: Apache-2.0
 version: 1.10.1
 
@@ -39,8 +45,14 @@ parts:
     build-snaps:
       - go/1.21/stable
     build-environment:
+      - CGO_ENABLED: 0
       - GOOS: linux
       - GOARCH: $CRAFT_ARCH_BUILD_FOR
+      - VERSION: $CRAFT_PROJECT_VERSION
+      - LDFLAGS: >
+          -X main.version=${VERSION} -extldflags "-static"
+    go-buildtags:
+      - "mod=vendor"
     go-generate:
       - ./cmd/csi-resizer
     organize:
