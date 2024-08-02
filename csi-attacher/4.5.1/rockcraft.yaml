@@ -31,9 +31,11 @@ services:
     summary: "csi-attacher service"
     override: replace
     startup: enabled
-    command: "/csi-attacher"
+    command: "/csi-attacher [ --help ]"
     on-success: shutdown
     on-failure: shutdown
+
+entrypoint-service: csi-attacher
 
 parts:
   build-csi-attacher:

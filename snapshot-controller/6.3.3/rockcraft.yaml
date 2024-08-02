@@ -26,9 +26,11 @@ services:
     summary: "snapshot-controller service"
     override: replace
     startup: enabled
-    command: "/snapshot-controller"
+    command: "/snapshot-controller [ --help ]"
     on-success: shutdown
     on-failure: shutdown
+
+entrypoint-service: snapshot-controller
 
 parts:
   build-snapshot-controller:
