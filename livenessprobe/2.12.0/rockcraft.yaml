@@ -14,7 +14,6 @@ version: 2.12.0
 
 base: bare
 build-base: ubuntu@22.04
-run-user: _daemon_
 
 platforms:
   amd64:
