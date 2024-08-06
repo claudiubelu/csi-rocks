@@ -10,7 +10,8 @@ from k8s_test_harness.util import env_util, k8s_util
 
 LOG = logging.getLogger(__name__)
 
-NFSPLUGIN_IMG = "ghcr.io/canonical/nfsplugin:4.7.0-ck2"
+# NFSPLUGIN_IMG = "ghcr.io/canonical/nfsplugin:4.7.0-ck2"
+NFSPLUGIN_IMG = "registry.k8s.io/sig-storage/nfsplugin:v4.7.0"
 
 
 def _get_nfsplugin_csi_helm_cmd():
@@ -52,3 +53,32 @@ def test_nfsplugin_integration(function_instance: harness.Instance):
     k8s_util.wait_for_daemonset(function_instance, "csi-nfs-node", "kube-system")
     k8s_util.wait_for_deployment(function_instance, "csi-nfs-controller", "kube-system")
     k8s_util.wait_for_deployment(function_instance, "snapshot-controller", "kube-system")
+
+    # call the nfsplugin's liveness probes to check that they're running as intended.
+    resources = [
+        (constants.K8S_DEPLOYMENT, "csi-nfs-controller"),
+        (constants.K8S_DAEMONSET, "csi-nfs-node"),
+    ]
+
+    for resource_type, name in resources:
+        port = k8s_util.get_probe_property(
+            function_instance,
+            "port",
+            "kube-system",
+            resource_type,
+            name,
+            container_name="nfs",
+        )
+        path = k8s_util.get_probe_property(
+            function_instance,
+            "path",
+            "kube-system",
+            resource_type,
+            name,
+            container_name="nfs",
+        )
+
+        # It has hostNetwork=true, which means that curling localhost should work.
+        exec_util.stubbornly(retries=5, delay_s=5).on(instance).exec(
+            ["curl", f"http://localhost:{port}{path}"]
+        )
