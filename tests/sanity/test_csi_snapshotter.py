@@ -3,13 +3,15 @@
 # See LICENSE file for licensing details
 #
 
+import pytest
 from k8s_test_harness.util import docker_util, env_util
 
 
-def test_csi_snapshotter_rock():
+@pytest.mark.parametrize("image_version", ("6.3.3", "7.0.2"))
+def test_csi_snapshotter_rock(image_version):
     """Test csi-snapshotter rock."""
     rock = env_util.get_build_meta_info_for_rock_version(
-        "csi-snapshotter", "6.3.3", "amd64"
+        "csi-snapshotter", image_version, "amd64"
     )
     image = rock.image
 
