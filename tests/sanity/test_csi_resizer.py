@@ -3,13 +3,15 @@
 # See LICENSE file for licensing details
 #
 
+import pytest
 from k8s_test_harness.util import docker_util, env_util
 
 
-def test_csi_resizer_rock():
+@pytest.mark.parametrize("image_version", ("1.10.1", "1.11.1"))
+def test_csi_resizer_rock(image_version):
     """Test csi-resizer rock."""
     rock = env_util.get_build_meta_info_for_rock_version(
-        "csi-resizer", "1.10.1", "amd64"
+        "csi-resizer", image_version, "amd64"
     )
     image = rock.image
 
