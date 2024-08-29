@@ -3,13 +3,15 @@
 # See LICENSE file for licensing details
 #
 
+import pytest
 from k8s_test_harness.util import docker_util, env_util
 
 
-def test_livenessprobe_rock():
+@pytest.mark.parametrize("image_version", ("2.12.0", "2.13.1"))
+def test_livenessprobe_rock(image_version):
     """Test livenessprobe rock."""
     rock = env_util.get_build_meta_info_for_rock_version(
-        "livenessprobe", "2.12.0", "amd64"
+        "livenessprobe", image_version, "amd64"
     )
     image = rock.image
 
